@@ -1,8 +1,6 @@
 //https://www.acmicpc.net/problem/14499
 
 #include <iostream>
-#include <string.h>
-#include <math.h>
 
 using namespace std;
 
@@ -102,7 +100,7 @@ int main()
 	cin >> x;	//pos X
 	cin >> k;	//Command Count
 
-	char** map = new char*[n];
+	char** map = new char* [n];
 
 	for (short i = 0; i < n; ++i)
 	{
