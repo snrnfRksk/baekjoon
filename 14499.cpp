@@ -1,174 +1,130 @@
 //https://www.acmicpc.net/problem/14499
 
 #include <iostream>
+#include <vector>
 
 using namespace std;
 
 enum EDirection
 {
-	EAST = 1,
-	WEST,
-	NORTH,
-	SOUTH,
-	END,
+    EAST = 1,
+    WEST,
+    NORTH,
+    SOUTH,
 };
 
 class Dice
 {
 public:
-	enum EFace
-	{
-		UP,
-		FRONT,
-		RIGHT,
-		LEFT,
-		BACK,
-		DOWN,
-		MAX,
-	};
+    enum EFace
+    {
+        UP,
+        FRONT,
+        RIGHT,
+        LEFT,
+        BACK,
+        DOWN,
+        MAX,
+    };
 
-	short Role(EDirection _moveDireciton, short _mapNumber)
-	{
-		EFace RoleDirection_Front;
-		EFace RoleDirection_Back;
-		switch (_moveDireciton)
-		{
-			case EDirection::EAST:
-			{
-				RoleDirection_Front = EFace::RIGHT;
-				RoleDirection_Back = EFace::LEFT;
-				break;
-			}
-			case EDirection::WEST:
-			{
-				RoleDirection_Front = EFace::LEFT;
-				RoleDirection_Back = EFace::RIGHT;
-				break;
-			}
-			case EDirection::NORTH:
-			{
-				RoleDirection_Front = EFace::FRONT;
-				RoleDirection_Back = EFace::BACK;
-				break;
-			}
-			case EDirection::SOUTH:
-			{
-				RoleDirection_Front = EFace::BACK;
-				RoleDirection_Back = EFace::FRONT;
-				break;
-			}
-			default:
-				return 0;
-		}
+    short Role(EDirection _moveDireciton, short _mapNumber)
+    {
+        EFace RoleDirection_Front;
+        EFace RoleDirection_Back;
+        switch (_moveDireciton)
+        {
+            case EAST:
+                RoleDirection_Front = RIGHT;
+                RoleDirection_Back = LEFT;
+                break;
+            case WEST:
+                RoleDirection_Front = LEFT;
+                RoleDirection_Back = RIGHT;
+                break;
+            case NORTH:
+                RoleDirection_Front = FRONT;
+                RoleDirection_Back = BACK;
+                break;
+            case SOUTH:
+                RoleDirection_Front = BACK;
+                RoleDirection_Back = FRONT;
+                break;
+            default:
+                return 0;
+        }
 
-		//주사위를 회전시킨 후
-		short tempNumber = m_numbers[EFace::UP];
-		m_numbers[EFace::UP] = m_numbers[RoleDirection_Back];
-		m_numbers[RoleDirection_Back] = m_numbers[EFace::DOWN];
-		m_numbers[EFace::DOWN] = m_numbers[RoleDirection_Front];
-		m_numbers[RoleDirection_Front] = tempNumber;
+        short tempNumber = m_numbers[UP];
+        m_numbers[UP] = m_numbers[RoleDirection_Back];
+        m_numbers[RoleDirection_Back] = m_numbers[DOWN];
+        m_numbers[DOWN] = m_numbers[RoleDirection_Front];
+        m_numbers[RoleDirection_Front] = tempNumber;
 
-		short returnValue = 0;
-		//맵 숫자를 바닥에 복사하고
-		if (_mapNumber == 0)
-		{
-			returnValue = m_numbers[EFace::DOWN];
-		}
-		else
-		{
-			m_numbers[EFace::DOWN] = _mapNumber;
-			returnValue = 0;
-		}
+        cout << m_numbers[UP] << endl;
 
-		//윗면을 Print한다
-		cout << m_numbers[EFace::UP] << endl;
-
-		return returnValue;
-	}
+        if (_mapNumber == 0)
+        {
+            return m_numbers[DOWN];
+        }
+        else
+        {
+            m_numbers[DOWN] = _mapNumber;
+            return 0;
+        }
+    }
 
 private:
-	short m_numbers[EFace::MAX];
+    short m_numbers[EFace::MAX] = { 0, };
 };
 
 int main()
 {
-	short n, m, x, y, k;
+    short n, m, x, y, k;
 
-	cin >> n;	//size Y
-	cin >> m;	//size X
-	cin >> y;	//pos Y
-	cin >> x;	//pos X
-	cin >> k;	//Command Count
+    cin >> n >> m >> y >> x >> k;
 
-	char** map = new char* [n];
+    vector<vector<int>> map(n, vector<int>(m, 0));
 
-	for (short i = 0; i < n; ++i)
-	{
-		map[i] = new char[m];
-		for (short j = 0; j < m; ++j)
-		{
-			int input;
-			cin >> input;
-			map[i][j] = (char)input;
-		}
-	}
+    for (short i = 0; i < n; ++i)
+    {
+        for (short j = 0; j < m; ++j)
+        {
+            cin >> map[i][j];
+        }
+    }
 
-	Dice* dice = new Dice();
+    Dice dice;
 
-	short command;
-	for (int i = 0; i < k; ++i)
-	{
-		cin >> command;
+    short command;
+    for (int i = 0; i < k; ++i)
+    {
+        cin >> command;
+        EDirection direction = static_cast<EDirection>(command);
 
-		EDirection direction = (EDirection)command;
-		switch (direction)
-		{
-			case EDirection::EAST:
-			{
-				if (x + 1 >= m)
-					continue;
+        switch (direction)
+        {
+            case EAST:
+                if (x + 1 >= m) continue;
+                ++x;
+                break;
+            case WEST:
+                if (x - 1 < 0) continue;
+                --x;
+                break;
+            case NORTH:
+                if (y - 1 < 0) continue;
+                --y;
+                break;
+            case SOUTH:
+                if (y + 1 >= n) continue;
+                ++y;
+                break;
+            default:
+                continue;
+        }
 
-				++x;
-				break;
-			}
-			case EDirection::WEST:
-			{
-				if (x - 1 < 0)
-					continue;
-				--x;
-				break;
-			}
-			case EDirection::NORTH:
-			{
-				if (y - 1 < 0)
-					continue;
+        int copyResultNumber = dice.Role(direction, map[y][x]);
+        map[y][x] = copyResultNumber;
+    }
 
-				--y;
-				break;
-			}
-			case EDirection::SOUTH:
-			{
-				if (y + 1 >= n)
-					continue;
-
-				++y;
-				break;
-			}
-			default:
-				continue;
-		}
-
-		int copyResultNumber = dice->Role(direction, map[y][x]);
-		map[y][x] = copyResultNumber;
-	}
-
-
-	for (int i = 0; i < n; ++i)
-	{
-		delete[] map[i];
-	}
-	delete[] map;
-	delete dice;
-
-	return 0;
+    return 0;
 }
